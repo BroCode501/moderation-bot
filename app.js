@@ -2,8 +2,6 @@ const qrcode = require('qrcode-terminal');
 
 const { Client, LocalAuth, GroupNotificationTypes,  } = require('whatsapp-web.js');
 
-const profanity = require('profanity-hindi')
-
 const client = new Client({
   authStrategy: new LocalAuth({clientId: 'Primary_Session'})
 });
@@ -17,15 +15,7 @@ client.on('ready', () => {
 });
 
 client.on('message', async (message) => {
-  console.log(message);
-  if ((typeof message.body)==='string'){
-  if (profanity.isMessageDirty(message.body)){
-    client.sendMessage(message.from, `Please Don't ruin the environment`)
-
-    client.sendMessage(message.id.participant, `You can Consider this as a threat, but for reasons, I will Call it a Warning. If I catch you using, slurs or any thing that ruins the environment, You don't know when I will change my miind and do something else other than sending this so called Warning message.`)
-    message.forward(message.id.participant);
-  }
-
+  // Commands
   }
     if (message.body === ';web'){
     message.reply('Email: brocode404@proton.me\nWebsite: https://brocode-tech.netlify.app/\nTwitter: https://twitter.com/brocode501\nVisit our website More Details');
@@ -54,9 +44,7 @@ client.on('group_leave', async (notification) => {
     .catch(error => {
       console.log(error)
     })
-  //chat.sendMessage('Hello @${contact.id.user},\nWelcome to our Community. Hoe you have a good time.', {mentions: [contact]});
 });
-
 
 
 client.on('group_join', async (notification) => { 
@@ -71,7 +59,6 @@ client.on('group_join', async (notification) => {
     .catch(error => {
       console.log(error)
     })
-  //chat.sendMessage('Hello @${contact.id.user},\nWelcome to our Community. Hoe you have a good time.', {mentions: [contact]});
 });
 
 
