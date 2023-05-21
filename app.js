@@ -1,10 +1,30 @@
 const qrcode = require('qrcode-terminal');
-
 const { Client, LocalAuth, GroupNotificationTypes,  } = require('whatsapp-web.js');
+const fs = require('fs');
 
 const client = new Client({
   authStrategy: new LocalAuth({clientId: 'Primary_Session'})
 });
+
+function detectEnSlang(message) {
+  // Load and parse the JSON file
+  const jsonData = fs.readFileSync('slangs_en.json');
+  const slangs = JSON.parse(jsonData);
+
+  // Iterate through the slangs array
+  for (const slang of slangs) {
+    if (message.toLowerCase().includes(slang.text)) {
+      return {
+        detected: true, 
+        data: slang
+      }; // Slang detected
+    }
+  }
+  return {
+    detected: false,
+    data: null
+  }; // No slangs detected
+}
 
 client.on('qr', qr => {
     qrcode.generate(qr, {small: true});
@@ -15,21 +35,36 @@ client.on('ready', () => {
 });
 
 client.on('message', async (message) => {
-  // Commands
+  //Profanity check
+  if (typeof message.body === 'string'){
+    console.log(message.from, message.author, message.body);
+    param = detectEnSlang(message.body);
+    console.log(param);
+    if (param.detected){
+      client.sendMessage(message.from, `Stop Slanging. You have been warned for using a ${param.data['category_1']} like slang.`);
+      client.sendMessage(message.author, `Stop Slanging. You have been warned for using a ${param.data['category_1']} like slang.`).catch((error) => {
+        console.log(error);
+      });
+      message.forward(message.author).catch((error) => {
+        console.log(error);
+      });
+      message.delete(true).catch((error) => {
+        console.log(error);
+      });
+    }
   }
+  // Commands
     if (message.body === ';web'){
     message.reply('Email: brocode404@proton.me\nWebsite: https://brocode-tech.netlify.app/\nTwitter: https://twitter.com/brocode501\nVisit our website More Details');
   } else {
     if (message.body === ';source'){
-      message.reply('Hi, I am Moderation Bot and here is the source code: https://github.com/BroCode501/moderation-bot')
+      message.reply('Hi, I am Nova, the Moderation Bot and here is the source code: https://github.com/BroCode501/moderation-bot')
     } else {
       if ((message.body === ';h') || (message.body === ';help')){
         message.reply("Hi, I am Nova, the Moderation Bot of the Group.\nCommand List:\n;web - External links to Author and BroCode\n;source - Source code of Bot\n;help or ;h - Help Command")
       }
     }
   }
-
-
 });
 
 client.on('group_leave', async (notification) => { 
