@@ -1,11 +1,15 @@
+// Imports
 const qrcode = require('qrcode-terminal');
 const { Client, LocalAuth, GroupNotificationTypes,  } = require('whatsapp-web.js');
 const fs = require('fs');
+const wikipedia = require('wikipedia');
 
+//Client Object with LocalAuth to preserve the session
 const client = new Client({
   authStrategy: new LocalAuth({clientId: 'Primary_Session'})
 });
 
+// Profanity Filter English
 function detectEnSlang(message) {
   // Load and parse the JSON file
   const jsonData = fs.readFileSync('slangs_en.json');
@@ -26,6 +30,7 @@ function detectEnSlang(message) {
   }; // No slangs detected
 }
 
+
 client.on('qr', qr => {
     qrcode.generate(qr, {small: true});
 });
@@ -33,6 +38,7 @@ client.on('qr', qr => {
 client.on('ready', () => {
     console.log('Client is ready!');
 });
+
 
 client.on('message', async (message) => {
   //Profanity check
@@ -61,7 +67,14 @@ client.on('message', async (message) => {
       message.reply('Hi, I am Nova, the Moderation Bot and here is the source code: https://github.com/BroCode501/moderation-bot')
     } else {
       if ((message.body === ';h') || (message.body === ';help')){
-        message.reply("Hi, I am Nova, the Moderation Bot of the Group.\nCommand List:\n;web - External links to Author and BroCode\n;source - Source code of Bot\n;help or ;h - Help Command")
+        message.reply("Hi, I am Nova, the Moderation Bot of the Group.\nCommand List:\n;web - External links to Author and BroCode\n;source - Source code of Bot\n;wikipedia - Get any wikipedia article\n;help or ;h - Help Command")
+      } else {
+      // Complex Commands Go here
+      cmd_array = message.body.split(' ')
+        if (cmd_array[0] === ';wikipedia'){
+          dt = await wikipedia.summary(cmd_array.slice(1).join(' '))
+          message.reply(dt.extract)
+        }
       }
     }
   }
