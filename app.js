@@ -64,41 +64,6 @@ async function checkImage(imageBase64, apiUser, apiSecret) {
   }
 }
 
-
-
-/*
-// Load the NSFW model
-async function loadModel() {
-  const model = await nsfwjs.load();
-  return model;
-}
-
-// Function to check for NSFW images and alcoholic photos
-async function checkImage(imageBase64) {
-  const model = await loadModel();
-
-  // Decode the base64 image
-  const imageBuffer = Buffer.from(imageBase64, 'base64');
-
-  // Load the image using TensorFlow.js
-  const imageTensor = tf.node.decodeImage(imageBuffer);
-
-  // Normalize the image
-  const image = tf.div(imageTensor, 255.0);
-
-  // Make predictions using the NSFW model
-  const predictions = await model.classify(image);
-
-  // Check if NSFW content or alcoholic photo found
-  for (const prediction of predictions) {
-    if (prediction.className === 'NSFW' || prediction.className === 'Alcohol') {
-      return true;
-    }
-  }
-
-  return false; // No NSFW content or alcoholic photo found
-}
-*/
 //Client Object with LocalAuth to preserve the session
 const client = new Client({
   authStrategy: new LocalAuth({clientId: 'Primary_Session'})
@@ -199,9 +164,11 @@ client.on('message', async (message) => {
               }
             })
             .catch((error) => {
-              message.reply(`Unexpected Error Occured. lease Try again later`)
+              message.reply(`Unexpected Error Occured. Please Try again later`)
               console.log(error)
             })
+        } else {
+          console.log(cmd_array)
         }
       }
     }
@@ -236,6 +203,5 @@ client.on('group_join', async (notification) => {
       console.log(error)
     })
 });
-
 
 client.initialize();
