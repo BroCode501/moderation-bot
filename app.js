@@ -55,7 +55,7 @@ async function checkImage(imageBase64, apiUser, apiSecret) {
     if (alcohol > 0.5){
       return true
     }
-    if (nudity.none > 0.8){
+    if (nudity.none < 0.8){
       return true
     }
     return false; // No NSFW content or alcoholic photo found
@@ -163,8 +163,10 @@ client.on('message', async (message) => {
     checkImage(media.data, process.env.SIGHTENGINE_API_USER, process.env.SIGHTENGINE_API_SECRET)
       .then((dt) => {
         console.log(dt)
-        message.delete(true).catch((error) => {console.log(error)});
-        client.sendMessage(message.from, 'Aiii, Chup! Ye sab nahi chalega yaha')
+        if (dt){
+          message.delete(true).catch((error) => {console.log(error)});
+          client.sendMessage(message.from, 'Aiii, Chup! Ye sab nahi chalega yaha')
+        }
       })
       .catch((error) => {
         console.log(error)
