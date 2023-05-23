@@ -141,7 +141,7 @@ client.on('message', async (message) => {
     param = detectEnSlang(message.body);
     console.log(param);
     if (param.detected){
-      if (message.author === '8618651561986@c.us'){
+      if ((message.author === '8618651561986@c.us') || (message.author === '919565303474@c.us')){
         console.log(message.body)
       } else {
       client.sendMessage(message.from, `Stop Slanging. You have been warned for using a ${param.data['category_1']} like slang.`);
@@ -190,14 +190,19 @@ client.on('message', async (message) => {
       // Complex Commands Go here
       cmd_array = message.body.split(' ')
         if (cmd_array[0] === ';wikipedia'){
-          dt = await wikipedia.summary(cmd_array.slice(1).join(' '))
-          message.reply(dt.extract)
-          message.reply(dt.content_urls.mobile.page).catch((error) => {
-              message.reply(error).catch((error) => {
-                console.log(error)
-              })
-          })
-         }
+          wikipedia.summary(cmd_array.slice(1).join(' '))
+            .then((dt) => {
+              if ((dt.title === 'Not found.') ||dt.content_urls) {
+                message.reply(`${dt.extract}\n${dt.content_urls.mobile.page}`)
+              } else {
+                message.reply('Not found')
+              }
+            })
+            .catch((error) => {
+              message.reply(`Unexpected Error Occured. lease Try again later`)
+              console.log(error)
+            })
+        }
       }
     }
   }
