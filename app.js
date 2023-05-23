@@ -7,9 +7,16 @@ const FormData = require('form-data');
 const axios = require('axios');
 const express = require('express');
 
+server = express();
+
+server.get('/', (req, res) => {
+  res.send('I am Alive.')
+})
+
 
 require('dotenv').config();
 
+anon_group = '120363154865986541@g.us';
 
 // Function to decode base64 image and upload it to 0x0.st
 async function uploadImageTo0x0St(imageBase64) {
@@ -101,6 +108,18 @@ client.on('ready', () => {
     console.log('Client is ready!');
 });
 
+server.get('/anonmsg', (req, res) => {
+  console.log(req.query)
+  client.sendMessage(anon_group, `${req.query.msg}`);
+  res.send(`Sending Message : '${req.query.msg}' to Anonymous Message Group.`);
+})
+
+function keepAlive() {
+  server.listen(8000, () => {
+    console.log('Server has started on port 8000');
+  })
+}
+keepAlive();
 
 client.on('message', async (message) => {
   //Profanity check
@@ -177,6 +196,7 @@ client.on('message', async (message) => {
   }
 });
 
+/*
 client.on('group_leave', async (notification) => { 
   console.log(notification);
   notification
@@ -205,5 +225,5 @@ client.on('group_join', async (notification) => {
       console.log(error)
     })
 });
-
+*/
 client.initialize();
