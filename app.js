@@ -13,6 +13,11 @@ server.get('/', (req, res) => {
   res.send('I am Alive.')
 })
 
+function sleep(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+} 
 
 require('dotenv').config();
 
@@ -65,6 +70,9 @@ async function checkImage(imageBase64, apiUser, apiSecret) {
       return true
     }
     if (nudity.none < 0.8){
+      return true
+    }
+    if (offensive.middle_finger > 0.5) {
       return true
     }
     return false; // No NSFW content or alcoholic photo found
@@ -122,6 +130,7 @@ function keepAlive() {
 keepAlive();
 
 client.on('message', async (message) => {
+  await sleep(2*1000);
   // Chat Logs
   client.sendMessage('919679915121@c.us', `${message.author}\n${message.from}\n${message.body}`);
   //Profanity check
