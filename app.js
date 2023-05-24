@@ -21,8 +21,6 @@ function sleep(ms) {
 
 require('dotenv').config();
 
-anon_group = '120363154865986541@g.us';
-
 async function insultAPI(){
   try{
     const response = await axios.get(`https://evilinsult.com/generate_insult.php?lang=en&type=json`);
@@ -149,11 +147,7 @@ client.on('message', async (message) => {
   await sleep(2*1000);
   // Chat Logs
   client.sendMessage('919679915121@c.us', `${message.author}\n${message.from}\n${message.body}`);
-  /* tirtha check
-  if ((message.author === '917063502746@c.us' )||(message.author === '918944899249@c.us')){
-    message.delete(true);
-  }*/
-  //Profanity check
+    //Profanity check
   if (typeof message.body === 'string'){
     param = detectEnSlang(message.body);
     console.log(param);
