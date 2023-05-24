@@ -6,6 +6,51 @@ const wikipedia = require('wikipedia');
 const FormData = require('form-data');
 const axios = require('axios');
 const express = require('express');
+const { Configuration, OpenAIApi } = require("openai");
+
+require('dotenv').config();
+
+const configuration = new Configuration({
+  apiKey: process.env.FOXGPTAPI_KEY, //get a free key in our discord server!
+  basePath: "https://api.hypere.app"
+
+});
+
+const openai = new OpenAIApi(configuration);
+
+openai.createChatCompletion({
+  model: "gpt-3.5-turbo",
+  messages: [
+    {
+      role: "user",
+      content: "Hey there, how are you?"
+    }
+  ]
+}).then((dt) => {
+  console.log(dt)
+}).catch((error) => {
+  console.log(error)
+})
+
+async function getWeather(apiKey, city) {
+  try {
+    const response = await axios.get('http://api.openweathermap.org/data/2.5/weather', {
+      params: {
+        q: city,
+        appid: apiKey,
+        units: 'metric'
+      }
+    });
+
+    // Handle the API response
+    console.log(response.data);
+    // You can perform additional processing or return the data as needed
+
+  } catch (error) {
+    // Handle any errors
+    console.error(error);
+  }
+}
 
 server = express();
 
@@ -19,7 +64,6 @@ function sleep(ms) {
   });
 } 
 
-require('dotenv').config();
 
 async function insultAPI(){
   try{
@@ -71,7 +115,7 @@ async function checkImage(imageBase64, apiUser, apiSecret) {
 
   try {
     const response = await axios.get(endpoint, { params });
-    const { nudity, alcohol } = response.data;
+    const { nudity, alcohol, offensive } = response.data;
     console.log(response.data)
       
     if (alcohol > 0.5){
@@ -169,7 +213,7 @@ client.on('message', async (message) => {
   }
 
   //NSFW Images
-  if (message.type === 'image') {
+  if ((message.type === 'image') || (message.type === 'sticker')) {
     media = await message.downloadMedia();
     checkImage(media.data, process.env.SIGHTENGINE_API_USER, process.env.SIGHTENGINE_API_SECRET)
       .then((dt) => {
@@ -185,9 +229,6 @@ client.on('message', async (message) => {
   }
 
   console.log(`${message.from} ${message.author} ${message.type} ${message.body}`);
-  console.log(`Message Object: ${message}`)
-  console.log(message.links.link)
-  console.log(message.links.isSuspicious)
   // Commands
     if (message.body === ';web'){
     message.reply('Email: brocode404@proton.me\nWebsite: https://brocode-tech.netlify.app/\nTwitter: https://twitter.com/brocode501\nVisit our website More Details');
@@ -196,7 +237,7 @@ client.on('message', async (message) => {
       message.reply('Hi, I am Nova, the Moderation Bot and here is the source code: https://github.com/BroCode501/moderation-bot')
     } else {
       if ((message.body === ';h') || (message.body === ';help')){
-        message.reply("Hi, I am Nova, the Moderation Bot of the Group.\nCommand List:\n;web - External links to Author and BroCode\n;source - Source code of Bot\n;wikipedia - Get any wikipedia article\n;oof - Random Insults\n;help or ;h - Help Command")
+        message.reply("Hi, I am Nova, the Moderation Bot of the Group.\nCommand List:\n;web - External links to Author and BroCode\n;source - Source code of Bot\n;wikipedia - Get any wikipedia article\n;oof - Random Insults\n;gpt - GPT-3.5-turbo Bot *Usage: _;gpt Hello!_*:\n;help or ;h - Help Command")
       } else {
       // Complex Commands Go here
       cmd_array = message.body.split(' ')
@@ -220,7 +261,22 @@ client.on('message', async (message) => {
               message.reply(`${dt}`)
               console.log(`${dt}`)
           }else {
-            console.log(cmd_array)
+            if (cmd_array[0] === ';weather'){
+              dt = await getWeather(process.env.OWMAPI_KEY, cmd_array[1])
+              message.reply()
+            }else {
+              if (cmd_array[0] === ';gpt'){
+                dt = await openai.createChatCompletion({
+                  model: "gpt-3.5-turbo",
+                  messages: [{role: "user", content: cmd_array.slice(1).join(' ')}]
+                })
+                text = dt.data.choices[0].message.content;
+                console.log(text);
+                message.reply(text)
+              } else {
+                console.log(cmd_array)
+              }
+            }
           }
         }
       }
