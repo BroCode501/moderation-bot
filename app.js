@@ -23,6 +23,16 @@ require('dotenv').config();
 
 anon_group = '120363154865986541@g.us';
 
+async function insultAPI(){
+  try{
+    const response = await axios.get(`https://evilinsult.com/generate_insult.php?lang=en&type=json`);
+    return response.data.insult;
+  } catch (error) {
+    console.log(error)
+    return 'Insulting you is an Insult to those wors, whom i used as an Insult.'
+  }
+}
+
 // Function to decode base64 image and upload it to 0x0.st
 async function uploadImageTo0x0St(imageBase64) {
   const imagePath = 'tempImage.jpg';
@@ -91,10 +101,12 @@ function detectEnSlang(message) {
   // Load and parse the JSON file
   const jsonData = fs.readFileSync('slangs_en.json');
   const slangs = JSON.parse(jsonData);
+  msg = message.toLowerCase().split(' ')
+  console.log(msg)
 
   // Iterate through the slangs array
   for (const slang of slangs) {
-    if (message.toLowerCase().includes(slang.text)) {
+    if (msg.includes(slang.text)) {
       return {
         detected: true, 
         data: slang
@@ -129,10 +141,18 @@ function keepAlive() {
 }
 keepAlive();
 
+function choice(array) {
+  return array[Math.floor(Math.random() * array.length)];
+}
+
 client.on('message', async (message) => {
   await sleep(2*1000);
   // Chat Logs
   client.sendMessage('919679915121@c.us', `${message.author}\n${message.from}\n${message.body}`);
+  /* tirtha check
+  if ((message.author === '917063502746@c.us' )||(message.author === '918944899249@c.us')){
+    message.delete(true);
+  }*/
   //Profanity check
   if (typeof message.body === 'string'){
     param = detectEnSlang(message.body);
@@ -182,7 +202,7 @@ client.on('message', async (message) => {
       message.reply('Hi, I am Nova, the Moderation Bot and here is the source code: https://github.com/BroCode501/moderation-bot')
     } else {
       if ((message.body === ';h') || (message.body === ';help')){
-        message.reply("Hi, I am Nova, the Moderation Bot of the Group.\nCommand List:\n;web - External links to Author and BroCode\n;source - Source code of Bot\n;wikipedia - Get any wikipedia article\n;help or ;h - Help Command")
+        message.reply("Hi, I am Nova, the Moderation Bot of the Group.\nCommand List:\n;web - External links to Author and BroCode\n;source - Source code of Bot\n;wikipedia - Get any wikipedia article\n;oof - Random Insults\n;help or ;h - Help Command")
       } else {
       // Complex Commands Go here
       cmd_array = message.body.split(' ')
@@ -200,41 +220,17 @@ client.on('message', async (message) => {
               console.log(error)
             })
         } else {
-          console.log(cmd_array)
+          if ((message.body === ';tirtha') || (message.body === ';tutu') || (message.body === ';oof')){
+              enhi = ['en', 'hi'];
+              dt = await insultAPI(choice(enhi));
+              message.reply(`${dt}`)
+              console.log(`${dt}`)
+          }else {
+            console.log(cmd_array)
+          }
         }
       }
     }
   }
 });
-
-/*
-client.on('group_leave', async (notification) => { 
-  console.log(notification);
-  notification
-    .getChat()
-    .then((chat) => {
-      notification.recipientIds.map((i) => {
-        client.sendMessage(i, "We're sorry to see you leave the group. If you have any feedback or suggestions for improvement, please feel free to share them with us. You're always welcome back if you decide to rejoin in the future. Take care and best wishes!");
-      });
-    })
-    .catch(error => {
-      console.log(error)
-    })
-});
-
-
-client.on('group_join', async (notification) => { 
-  console.log(notification);
-  notification
-    .getChat()
-    .then((chat) => {
-      notification.recipientIds.map((i) => {
-        client.sendMessage(i, "Welcome to the group! We're glad to have you here. Feel free to introduce yourself and engage in discussions with fellow members. If you have any questions or need assistance, don't hesitate to ask. Enjoy your time in the group!");
-      });
-    })
-    .catch(error => {
-      console.log(error)
-    })
-});
-*/
 client.initialize();

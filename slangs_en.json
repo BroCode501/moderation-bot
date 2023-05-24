@@ -6500,7 +6500,19 @@
     "severity_rating": 2,
     "severity_description": "Strong"
   },
-  {
+{
+    "text": "fuck",
+    "canonical_form_1": "fuck",
+    "canonical_form_2": "",
+    "canonical_form_3": "",
+    "category_1": "sexual anatomy / sexual acts",
+    "category_2": "",
+    "category_3": "",
+    "severity_rating": 2,
+    "severity_description": "Strong"
+  },
+
+{
     "text": "Fuck",
     "canonical_form_1": "fuck",
     "canonical_form_2": "",
@@ -6511,7 +6523,8 @@
     "severity_rating": 2,
     "severity_description": "Strong"
   },
-  {
+
+    {
     "text": "fuck arse",
     "canonical_form_1": "fuck",
     "canonical_form_2": "arse",
