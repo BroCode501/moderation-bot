@@ -229,7 +229,7 @@ client.on('message', async (message) => {
   }
 
   // Wa me settings bug
-  if (message.body.includes('wa.me/settings')){
+  if (message.body.toLowerCase().includes('wa.me/settings')){
     message.delete(true)
   }
 
