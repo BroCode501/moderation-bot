@@ -13,7 +13,9 @@ Filters any NSFW Photo in the group.
 ;h or ;help - For all Commands and Help
 ;wikipedia - for Wiki Search
 ;source - for Source Code
-web - For Other links
+;web - For Other links
+;oof - Random Insults
+;gpt - GPT 3.5 Turbo Integration
 ```
 
 ## Installation
