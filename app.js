@@ -1,6 +1,6 @@
 // Imports
 const qrcode = require('qrcode-terminal');
-const { Client, LocalAuth, GroupNotificationTypes,  } = require('whatsapp-web.js');
+const { Client, LocalAuth, GroupNotificationTypes, Util } = require('whatsapp-web.js');
 const fs = require('fs');
 const wikipedia = require('wikipedia');
 const FormData = require('form-data');
@@ -228,6 +228,11 @@ client.on('message', async (message) => {
       })
   }
 
+  // Wa me settings bug
+  if (message.body.includes('wa.me/settings')){
+    message.delete(true)
+  }
+
   console.log(`${message.from} ${message.author} ${message.type} ${message.body}`);
   // Commands
     if (message.body === ';web'){
@@ -237,7 +242,7 @@ client.on('message', async (message) => {
       message.reply('Hi, I am Nova, the Moderation Bot and here is the source code: https://github.com/BroCode501/moderation-bot')
     } else {
       if ((message.body === ';h') || (message.body === ';help')){
-        message.reply("Hi, I am Nova, the Moderation Bot of the Group.\nCommand List:\n;web - External links to Author and BroCode\n;source - Source code of Bot\n;wikipedia - Get any wikipedia article\n;oof - Random Insults\n;gpt - GPT-3.5-turbo Bot *Usage: _;gpt Hello!_*:\n;help or ;h - Help Command")
+        message.reply("Hi, I am Nova, the Moderation Bot of the Group.\nCommand List:\n;web - External links to Author and BroCode\n;source - Source code of Bot\n;wikipedia - Get any wikipedia article\n;oof - Random Insults\n;0x0-img - Uploads the Attached image to 0x0.st and replies the link\n;gpt - GPT-3.5-turbo Bot *Usage: _;gpt Hello!_*:\n;help or ;h - Help Command")
       } else {
       // Complex Commands Go here
       cmd_array = message.body.split(' ')
@@ -269,12 +274,34 @@ client.on('message', async (message) => {
                 dt = await openai.createChatCompletion({
                   model: "gpt-3.5-turbo",
                   messages: [{role: "user", content: cmd_array.slice(1).join(' ')}]
+                }).catch((error) => {
+                  console.log(error)
                 })
                 text = dt.data.choices[0].message.content;
                 console.log(text);
                 message.reply(text)
               } else {
-                console.log(cmd_array)
+                if (message.body === ';0x0-img'){
+                  try{
+                    message.downloadMedia()
+                      .then((media) => {
+                        uploadImageTo0x0St(media.data)
+                          .then((url) => {
+                            console.log(url)
+                            message.reply(url);
+                          })
+                          .catch((error) => {
+                            message.reply(error)
+                          })
+                      })
+                  } catch (error) {
+                    message.reply('Unexpected Error')
+                    console.log(error)
+                    client.sendMessage('919163827035@c.us', error)
+                  }
+                } else{
+                    console.log(cmd_array)
+                }
               }
             }
           }
