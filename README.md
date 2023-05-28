@@ -16,6 +16,9 @@ Filters any NSFW Photo in the group.
 ;web - For Other links
 ;oof - Random Insults
 ;gpt - GPT 3.5 Turbo Integration
+;wikipedia - Get wikipedia articles
+;0x0-img - Upload the Attached image to https://0x0.st
+;weather - Get Weather of Any place you desire
 ```
 
 ## Installation
