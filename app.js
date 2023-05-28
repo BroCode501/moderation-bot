@@ -27,7 +27,7 @@ openai.createChatCompletion({
     }
   ]
 }).then((dt) => {
-  console.log(dt)
+  console.log(dt.data.choices[0].message)
 }).catch((error) => {
   console.log(error)
 })
@@ -45,6 +45,7 @@ async function getWeather(apiKey, city) {
     // Handle the API response
     console.log(response.data);
     // You can perform additional processing or return the data as needed
+    return response.data;
 
   } catch (error) {
     // Handle any errors
@@ -212,9 +213,37 @@ client.on('message', async (message) => {
     }}
   }
 
+  //Probability to reply to a Messge via GPT
+  num = Math.floor(Math.random()*11)
+  console.log(num)
+  if (num === 2){
+    dt = await openai.createChatCompletion({
+                  model: "gpt-3.5-turbo",
+                  messages: [
+                    {
+                      role: 'user',
+                      content: `${message.body}\nLet us Imagine, I gave you this Message at Random, and you dont know the context, but you need to reply pretending to understand what was happening.
+What will be your Reply? Also  Shorten it to Maybe 30 Words, and make it look like a Text that would have been sent in a Chat room.`
+                    }
+                  ]
+                }).catch((error) => {
+                  console.log(error)
+                })
+    try {
+      text = dt.data.choices[0].message.content;
+      console.log(text);
+    } catch (error) {
+      console.log(error)
+      text='Unexpected Error'
+    }
+
+    message.reply(text)
+  }
+
   //NSFW Images
   if ((message.type === 'image') || (message.type === 'sticker')) {
     media = await message.downloadMedia();
+    try {
     checkImage(media.data, process.env.SIGHTENGINE_API_USER, process.env.SIGHTENGINE_API_SECRET)
       .then((dt) => {
         console.log(dt)
@@ -225,7 +254,9 @@ client.on('message', async (message) => {
       })
       .catch((error) => {
         console.log(error)
-      })
+      })} catch (error) {
+        console.log(error)
+      }
   }
 
   // Wa me settings bug
@@ -242,7 +273,20 @@ client.on('message', async (message) => {
       message.reply('Hi, I am Nova, the Moderation Bot and here is the source code: https://github.com/BroCode501/moderation-bot')
     } else {
       if ((message.body === ';h') || (message.body === ';help')){
-        message.reply("Hi, I am Nova, the Moderation Bot of the Group.\nCommand List:\n;web - External links to Author and BroCode\n;source - Source code of Bot\n;wikipedia - Get any wikipedia article\n;oof - Random Insults\n;0x0-img - Uploads the Attached image to 0x0.st and replies the link\n;gpt - GPT-3.5-turbo Bot *Usage: _;gpt Hello!_*:\n;help or ;h - Help Command")
+        message.reply(`
+Hi, I am Nova, the Moderation Bot of the Group.
+Command List:
+Argument less Commands.
+  ;help or ;h - Help Command
+  ;web - External links to Author and BroCode
+  ;source - Source code of Bot
+  ;oof - Random Insults
+Commands That Need Arguments
+  ;wikipedia - Get any wikipedia article (argument1: article name)
+  ;0x0-img - Uploads the Attached image to 0x0.st and replies the link (argument1: Attached Image (Just Use this as the caption of a photo))
+  ;gpt - GPT-3.5-turbo Bot *Usage: _;gpt Hello!_*
+  ;weather - Get weather of that Place (argument1: Place)
+          `)
       } else {
       // Complex Commands Go here
       cmd_array = message.body.split(' ')
@@ -267,8 +311,26 @@ client.on('message', async (message) => {
               console.log(`${dt}`)
           }else {
             if (cmd_array[0] === ';weather'){
-              dt = await getWeather(process.env.OWMAPI_KEY, cmd_array[1])
-              message.reply()
+              try{
+                dt = await getWeather(process.env.OWMAPI_KEY, cmd_array[1])
+                strweather = JSON.stringify(dt)
+              } catch (error) {
+                console.log(error)
+              }
+              try{
+                dt = await openai.createCompletion({
+                  model: "text-davinci-003",
+                  prompt: `The data contains the following JSON:\n${strweather}\n\nGive a Summary of the Weather Report:`,
+                  max_tokens: 100,
+                  temperature: 0.4
+                })
+                reply = dt.data.choices[0].text.trim();
+                console.log(reply)
+              } catch (error) {
+                console.log(error)
+                reply = "Unexpected Error"
+              }
+              message.reply(reply)
             }else {
               if (cmd_array[0] === ';gpt'){
                 dt = await openai.createChatCompletion({
@@ -277,23 +339,24 @@ client.on('message', async (message) => {
                 }).catch((error) => {
                   console.log(error)
                 })
-                text = dt.data.choices[0].message.content;
-                console.log(text);
+                try {
+                  text = dt.data.choices[0].message.content;
+                  console.log(text);
+                } catch (error) {
+                  console.log(error)
+                  text='Unexpected Error'
+                }
                 message.reply(text)
               } else {
                 if (message.body === ';0x0-img'){
                   try{
-                    message.downloadMedia()
-                      .then((media) => {
-                        uploadImageTo0x0St(media.data)
-                          .then((url) => {
-                            console.log(url)
-                            message.reply(url);
-                          })
-                          .catch((error) => {
-                            message.reply(error)
-                          })
-                      })
+                    try{
+                      media = await message.downloadMedia();
+                    } catch (error) {
+                      message.reply('Can\'t download image')
+                    }
+                    url = await uploadImageTo0x0St(media.data);
+                    message.reply(url)
                   } catch (error) {
                     message.reply('Unexpected Error')
                     console.log(error)
