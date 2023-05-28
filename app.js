@@ -171,12 +171,6 @@ client.on('ready', () => {
     console.log('Client is ready!');
 });
 
-server.get('/anonmsg', (req, res) => {
-  console.log(req.query)
-  client.sendMessage(anon_group, `${req.query.msg}`);
-  res.send(`Sending Message : '${req.query.msg}' to Anonymous Message Group.`);
-})
-
 function keepAlive() {
   server.listen(8000, () => {
     console.log('Server has started on port 8000');
@@ -213,6 +207,29 @@ client.on('message', async (message) => {
     }}
   }
 
+  //NSFW Images
+  if ((message.type === 'image') || (message.type === 'sticker')) {
+    media = await message.downloadMedia();
+    try {
+    checkImage(media.data, process.env.SIGHTENGINE_API_USER, process.env.SIGHTENGINE_API_SECRET)
+      .then((dt) => {
+        console.log(dt)
+        if (dt){
+          message.delete(true).catch((error) => {console.log(error)});
+          client.sendMessage(message.from, 'Aiii, Chup! Ye sab nahi chalega yaha')
+        }
+      })
+      .catch((error) => {
+        console.log(error)
+      })} catch (error) {
+        console.log(error)
+      }
+  } //Shorten it to Maybe 30 Words, and make it look like a Text that would have been sent in a Chat room
+
+  // Wa me settings bug Shorten it to Maybe 30 Words, and make it look like a Text that would have been sent in a Chat room
+  if (message.body.toLowerCase().includes('wa.me/settings')){
+    message.delete(true)
+  }
   //Probability to reply to a Messge via GPT
   num = Math.floor(Math.random()*11)
   console.log(num)
@@ -237,32 +254,9 @@ What will be your Reply? Also  Shorten it to Maybe 30 Words, and make it look li
       text='Unexpected Error'
     }
 
-    message.reply(text)
-  }
+      message.reply(text)
+    }
 
-  //NSFW Images
-  if ((message.type === 'image') || (message.type === 'sticker')) {
-    media = await message.downloadMedia();
-    try {
-    checkImage(media.data, process.env.SIGHTENGINE_API_USER, process.env.SIGHTENGINE_API_SECRET)
-      .then((dt) => {
-        console.log(dt)
-        if (dt){
-          message.delete(true).catch((error) => {console.log(error)});
-          client.sendMessage(message.from, 'Aiii, Chup! Ye sab nahi chalega yaha')
-        }
-      })
-      .catch((error) => {
-        console.log(error)
-      })} catch (error) {
-        console.log(error)
-      }
-  }
-
-  // Wa me settings bug
-  if (message.body.toLowerCase().includes('wa.me/settings')){
-    message.delete(true)
-  }
 
   console.log(`${message.from} ${message.author} ${message.type} ${message.body}`);
   // Commands
