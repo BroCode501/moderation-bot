@@ -231,7 +231,7 @@ client.on('message', async (message) => {
     message.delete(true)
   }
   //Probability to reply to a Messge via GPT
-  num = Math.floor(Math.random()*11)
+  num = Math.floor(Math.random()*5)
   console.log(num)
   if (num === 2){
     dt = await openai.createChatCompletion({
