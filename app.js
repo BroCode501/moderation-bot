@@ -145,7 +145,6 @@ function detectEnSlang(message) {
   const jsonData = fs.readFileSync('slangs_en.json');
   const slangs = JSON.parse(jsonData);
   msg = message.toLowerCase().split(' ')
-  console.log(msg)
 
   // Iterate through the slangs array
   for (const slang of slangs) {
@@ -231,16 +230,31 @@ client.on('message', async (message) => {
     message.delete(true)
   }
   //Probability to reply to a Messge via GPT
-  num = Math.floor(Math.random()*5)
-  console.log(num)
-  if (num === 2){
+  num = Math.floor(Math.random()*69)
+  if ((num === 2) && (message.author != undefined)){
+    console.log('Lucky')
+    try{
+      chat = await message.getChat();
+      msgs = await chat.fetchMessages({
+        limit: 10
+      });
+      last10texts = msgs.map((message) => {
+        contact = message.getContact();
+        return JSON.stringify({
+          body : message.body,
+          from: ((message.fromMe) ? 'Nova' : ((contact.isMyContact) ? (contact.name) : (message.puhname)))})
+      }).join('\n');
+      console.log(last10texts);
+    } catch (error) {
+      console.log(error);
+      last10texts = '';
+    }
     dt = await openai.createChatCompletion({
                   model: "gpt-3.5-turbo",
                   messages: [
                     {
                       role: 'user',
-                      content: `${message.body}\nLet us Imagine, I gave you this Message at Random, and you dont know the context, but you need to reply pretending to understand what was happening.
-What will be your Reply? Also  Shorten it to Maybe 30 Words, and make it look like a Text that would have been sent in a Chat room.`
+                      content: `${last10texts}\n${message.body}\nThese are the Last 10 messages. Now You need to reply as Nova the Moderator of BroCode Tech Community, and in a short (30-40 words) and as if you are texting in a chatroom, like including acronyms and ect.Remember to be Funny, but wise with your response`
                     }
                   ]
                 }).catch((error) => {
@@ -256,6 +270,43 @@ What will be your Reply? Also  Shorten it to Maybe 30 Words, and make it look li
 
       message.reply(text)
     }
+  if (message.author == undefined){
+    console.log('DM')
+    try{
+      chat = await message.getChat();
+      msgs = await chat.fetchMessages({
+        limit: 10
+      });
+      last10texts = msgs.map((message) => {
+        return JSON.stringify({body : message.body, from: ((message.fromMe) ? 'Nova' : 'User')})
+      }).join('\n');
+    } catch (error) {
+      console.log(error);
+      last10texts = '';
+    }
+    console.log(last10texts);
+    dt = await openai.createChatCompletion({
+                  model: "gpt-3.5-turbo",
+                  messages: [
+                    {
+                      role: 'user',
+                      content: `'${last10texts}\n${message.body}'\nThese are the Last 10 messages for context. Now You need to reply as Nova, pretending to be him, the Moderator (bot) of BroCode Tech Community made by Arnav ghosh, and text as if you are texting in a chatroom. Don't Respond like a Dialouge Script and Don't Start the message with 'Nova:'. Remind the User too, that sending ;h reveals all the Available Commands. Skip with your Introduction if it gets repetative.`
+                    }
+                  ]
+                }).catch((error) => {
+                  console.log(error)
+                })
+    try {
+      text = dt.data.choices[0].message.content;
+      console.log(text);
+    } catch (error) {
+      console.log(error)
+      text='Unexpected Error'
+    }
+
+      message.reply(text)
+    }
+
 
 
   console.log(`${message.from} ${message.author} ${message.type} ${message.body}`);
@@ -357,7 +408,7 @@ Commands That Need Arguments
                     client.sendMessage('919163827035@c.us', error)
                   }
                 } else{
-                    console.log(cmd_array)
+                    console.log('')
                 }
               }
             }
