@@ -19,7 +19,7 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 openai.createChatCompletion({
-  model: "gpt-3.5-turbo",
+model: "gpt-3.5-turbo",
   messages: [
     {
       role: "user",
@@ -244,7 +244,6 @@ client.on('message', async (message) => {
           body : message.body,
           from: ((message.fromMe) ? 'Nova' : ((contact.isMyContact) ? (contact.name) : (message.puhname)))})
       }).join('\n');
-      console.log(last10texts);
     } catch (error) {
       console.log(error);
       last10texts = '';
@@ -270,7 +269,8 @@ client.on('message', async (message) => {
 
       message.reply(text)
     }
-  if (message.author == undefined){
+  // DM to get repky and help
+  if ((message.author == undefined)&&(message.type === 'chat')){
     console.log('DM')
     try{
       chat = await message.getChat();
@@ -284,7 +284,6 @@ client.on('message', async (message) => {
       console.log(error);
       last10texts = '';
     }
-    console.log(last10texts);
     dt = await openai.createChatCompletion({
                   model: "gpt-3.5-turbo",
                   messages: [
