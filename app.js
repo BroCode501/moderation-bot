@@ -10,16 +10,16 @@ const { Configuration, OpenAIApi } = require("openai");
 
 require('dotenv').config();
 
-const configuration = new Configuration({
-  apiKey: process.env.FOXGPTAPI_KEY, //get a free key in our discord server!
-  basePath: "https://api.hypere.app"
+const configuration = {
+  apiKey: process.env.GROQ_API_KEY, //get a free key in our discord server!
+  basePath: "https://api.groq.com/openai/v1"
 
-});
+};
 
 const openai = new OpenAIApi(configuration);
 
 openai.createChatCompletion({
-model: "gpt-3.5-turbo",
+model: "deepseek-r1-distill-llama-70b",
   messages: [
     {
       role: "user",
@@ -175,16 +175,18 @@ function keepAlive() {
     console.log('Server has started on port 8000');
   })
 }
-keepAlive();
+
+//keepAlive();
 
 function choice(array) {
   return array[Math.floor(Math.random() * array.length)];
 }
 
 client.on('message', async (message) => {
-  await sleep(2*1000);
+  //await sleep(2*1000);
   // Chat Logs
-  client.sendMessage('919679915121@c.us', `${message.author}\n${message.from}\n${message.body}`);
+  console.log(message);
+  client.sendMessage('919163827035@c.us', `${message.author}\n${message.from}\n${message.body}`);
     //Profanity check
   if (typeof message.body === 'string'){
     param = detectEnSlang(message.body);
@@ -226,9 +228,6 @@ client.on('message', async (message) => {
   } //Shorten it to Maybe 30 Words, and make it look like a Text that would have been sent in a Chat room
 
   // Wa me settings bug Shorten it to Maybe 30 Words, and make it look like a Text that would have been sent in a Chat room
-  if (message.body.toLowerCase().includes('wa.me/settings')){
-    message.delete(true)
-  }
   //Probability to reply to a Messge via GPT
   num = Math.floor(Math.random()*69)
   if ((num === 2) && (message.author != undefined)){
@@ -249,7 +248,7 @@ client.on('message', async (message) => {
       last10texts = '';
     }
     dt = await openai.createChatCompletion({
-                  model: "gpt-3.5-turbo",
+                  model: "deepseek-r1-distill-llama-70b",
                   messages: [
                     {
                       role: 'user',
@@ -269,7 +268,7 @@ client.on('message', async (message) => {
 
       message.reply(text)
     }
-  // DM to get repky and help
+  // DM to get reply and help
   if ((message.author == undefined)&&(message.type === 'chat')){
     console.log('DM')
     try{
@@ -285,7 +284,7 @@ client.on('message', async (message) => {
       last10texts = '';
     }
     dt = await openai.createChatCompletion({
-                  model: "gpt-3.5-turbo",
+                  model: "deepseek-r1-distill-llama-70b",
                   messages: [
                     {
                       role: 'user',
