@@ -4,7 +4,7 @@
   "description": "A Moderation bot to moderate the group chat of a Whatsapp Group.",
   "main": "app.js",
   "scripts": {
-    "run": "nodemon app.js"
+    "start": "clear;nodemon app.js"
   },
   "keywords": [
     "wwebjs",
@@ -16,19 +16,13 @@
   "author": "Eliot Alderson",
   "license": "ISC",
   "dependencies": {
-    "@extractus/feed-extractor": "^6.2.2",
-    "axios": ">1.4.0",
-    "cheerio": ">1.0.0-rc.12",
-    "dotenv": ">16.0.3",
-    "express": "^4.18.2",
-    "feed-parser": "^1.0.19",
-    "form-data": "^4.0.0",
+    "@langchain/core": "^0.3.48",
+    "@langchain/groq": "^0.2.2",
+    "@langchain/langgraph": "^0.2.67",
+    "cheerio": "^1.0.0",
+    "langchain": "^0.3.24",
     "nodemon": "^3.1.10",
-    "openai": ">3.2.1",
-    "profanity-hindi": "^1.1.0",
     "qrcode-terminal": "^0.12.0",
-    "random-sentence-generator": "^0.0.8",
-    "whatsapp-web.js": ">1.20.0",
-    "wikipedia": ">2.0.0"
+    "whatsapp-web.js": "^1.27.0"
   }
 }
