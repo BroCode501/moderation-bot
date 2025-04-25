@@ -1,6 +1,44 @@
 import qrcode from 'qrcode-terminal';
 import { app, AIMessageParser, agent } from "./agent.js";
 import whatsapp from 'whatsapp-web.js';
+import { readFile } from 'fs/promises';
+
+async function isUserBanned(userId, filePath = './banlist.json') {
+  try {
+    const data = await readFile(filePath, 'utf-8');
+    const json = JSON.parse(data);
+    return json.banned_users?.includes(userId) || false;
+  } catch (err) {
+    console.error('Error reading or parsing JSON file:', err);
+    return false;
+  }
+}
+
+function configBuilder(msg) {
+  /*If `g.us` in msg.from its a Group message so look for msg.author
+   * If `c.us` in msg.from its a Personal message, no need for msg.author
+   * */
+  const isGroupMessage = msg.from.includes('g.us');
+  var isBotMentioned = false;
+  var isDM = false;
+  var thread_id = `${msg.from}`
+  if (isGroupMessage) {
+    var isBotMentioned = msg.mentionedIds.includes('919547400579@c.us');
+  }
+  else {
+    var isDM = msg.from.includes('c.us');
+  }
+  return {
+      config: {
+          configurable: { thread_id: thread_id } 
+        },
+      conditionals: {
+        isBotMentioned: isBotMentioned,
+        isGroupMessage: isGroupMessage,
+        isDM: isDM
+      } 
+  };
+}
 
 const { Client, LocalAuth } = whatsapp;
 
@@ -12,31 +50,6 @@ const client = new Client({
     dataPath: ".wwebjs_auth"
   }),
 });
-
-class JSONQueue {
-  constructor(limit = 10) {
-    this.limit = limit;
-    this.queue = [];
-  }
-
-  push(item) {
-    if (typeof item !== 'object' || item === null || Array.isArray(item)) {
-      throw new Error('Only non-null JSON objects are allowed');
-    }
-    this.queue.push(item);
-    if (this.queue.length > this.limit) {
-      this.queue.shift();
-    }
-  }
-
-  getAll() {
-    return [...this.queue];
-  }
-
-  clear() {
-    this.queue = [];
-  }
-}
 
 function sleep(ms) {
   return new Promise((resolve) => {
@@ -54,22 +67,39 @@ client.on("ready", () => {
 });
 
 client.on("message", async (msg) => {
-  console.log(`${msg.from} ${msg.author}: ${msg.body}`);
-  const queue = new JSONQueue(10);
-  queue.push({
-    role: "user",
-    content: `${msg.from}::${msg.author}:\n${msg.body}`
-  });
-  if (msg.mentionedIds.includes('919547400579@c.us')) {
-    const config = { configurable: { thread_id: msg.author } };
+  console.log(`${msg.from}:${msg.author}\n====\n${msg.body}`);
+
+
+
+  // Check if its a group message and if the Bot is mentioned
+  var isUBanned = await isUserBanned(msg.from);
+  var config_builder = configBuilder(msg);
+  var msg_content = ``;
+  if (!config_builder.conditionals.isDM) {
+    msg_content = `${msg.from}:${msg.author}\n====\n${msg.body}`
+  } else {
+    msg_content = `${msg.from}\n====\n${msg.body}`;
+  }
+  if (isUBanned) {
+    await msg.reply('You are banned from using this bot. Fuck you.');
+    return
+  }
+  if (!(msg.type=='chat')) {
+    return
+  }
+  if (config_builder) {
+    if (config_builder.conditionals.isGroupMessage && !config_builder.conditionals.isBotMentioned) {
+      return
+    }
+    const config = config_builder.config;
+    console.log(config);
     const response = await agent([
       {
         role: "user",
-        content: msg.body
+        content: msg_content
       }
     ], config);
     const data = AIMessageParser(response);
-    console.log(data);
     await msg.reply(data.response);
     //await msg.reply(`> ${msg.body}`);
   }

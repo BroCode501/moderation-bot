@@ -2,3 +2,4 @@ node_modules
 .wwebjs_auth
 .env
 .wwebjs_cache
+banlist.json

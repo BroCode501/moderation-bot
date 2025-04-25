@@ -52,7 +52,8 @@ export function extract(input, cheerio) {
 export const AIMessageParser = (message) => {
   var data = extract(message.content, cheerio);
   var text = data.text;
-  var think = data.think[0].split('\n');
+  var think = data.think[0] || `\n`;
+  var think = think.split('\n');
   var response = ``;
   for (var i = 0; i < think.length; i++) {
     response += `> ${think[i]}\n`;
