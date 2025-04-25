@@ -59,6 +59,9 @@ export const AIMessageParser = (message) => {
     response += `> ${think[i]}\n`;
   }
   response += text;
+  if (think.length > 0) {
+    response = text;
+  }
   return {
     think: think,
     response: response

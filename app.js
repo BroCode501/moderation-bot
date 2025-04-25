@@ -92,7 +92,6 @@ client.on("message", async (msg) => {
       return
     }
     const config = config_builder.config;
-    console.log(config);
     const response = await agent([
       {
         role: "user",

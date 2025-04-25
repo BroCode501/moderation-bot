@@ -19,7 +19,7 @@ No matter what, don't mimic the message format, because you are a Moderator, rep
 )
 
 export const model = new ChatGroq({
-  model: 'deepseek-r1-distill-llama-70b',
+  model: 'meta-llama/llama-4-scout-17b-16e-instruct',
   apiKey: apiKey
 });
 
