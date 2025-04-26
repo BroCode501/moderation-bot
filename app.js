@@ -42,8 +42,6 @@ function configBuilder(msg) {
 
 const { Client, LocalAuth } = whatsapp;
 
-console.log(typeof(app))
-
 const client = new Client({
   authStrategy: new LocalAuth({
     clientId: "Primary_Session",
@@ -68,8 +66,6 @@ client.on("ready", () => {
 
 client.on("message", async (msg) => {
   console.log(`${msg.from}:${msg.author}\n====\n${msg.body}`);
-
-
 
   // Check if its a group message and if the Bot is mentioned
   var isUBanned = await isUserBanned(msg.from);

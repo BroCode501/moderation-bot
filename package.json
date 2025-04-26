@@ -19,10 +19,12 @@
     "@langchain/core": "^0.3.48",
     "@langchain/groq": "^0.2.2",
     "@langchain/langgraph": "^0.2.67",
+    "axios": "^1.9.0",
     "cheerio": "^1.0.0",
     "langchain": "^0.3.24",
     "nodemon": "^3.1.10",
     "qrcode-terminal": "^0.12.0",
-    "whatsapp-web.js": "^1.27.0"
+    "whatsapp-web.js": "^1.27.0",
+    "zod": "^3.24.3"
   }
 }
